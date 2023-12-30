@@ -4,7 +4,7 @@ import pygame, random
 from pygame.locals import *
 
 pygame.init()
-screen_size = (1000, 700)
+screen_size = (1280, 720)
 screen = pygame.display.set_mode(screen_size, flags=pygame.RESIZABLE)
 myfont = pygame.font.SysFont('Simsun', 20)
 tittle = pygame.font.SysFont('Simsun', 50)
@@ -37,8 +37,8 @@ no_win = False
 def font_change(font):
     global myfont, tittle
     if font == 0:
-        myfont = pygame.font.SysFont('Simsun', 20)
-        tittle = pygame.font.SysFont('Simsun', 50)
+        myfont = pygame.font.Font(r'./unifont-15.0.01.ttf', 20)
+        tittle = pygame.font.Font(r'./unifont-15.0.01.ttf', 50)
     else:
         myfont = pygame.font.SysFont('SimHei', 20)
         tittle = pygame.font.SysFont('SimHei', 50)
@@ -90,11 +90,19 @@ class ai:
     player_point = []
     ai_point = []
     all_point = []
+    qi = 2
+    qi_p = 1
 
-    def set(self, size):
+    def set(self, size,player_qi=1):
         self.player_point = []
         self.ai_point = []
         self.all_point = []
+        if player_qi==1:
+            self.qi = 2
+            self.qi_p= 1
+        else:
+            self.qi = 1
+            self.qi_p= 2
         f1 = []
         for ss in range(size * 2):
             f1.append(0)
@@ -116,7 +124,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 + i1 + 1, y1, size) != 1 and g:
+                        if read_block(x1 + i1 + 1, y1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -126,7 +134,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 + i1 + 1, y1 - 1 - i1, size) != 1 and g:
+                        if read_block(x1 + i1 + 1, y1 - 1 - i1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -136,7 +144,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1, y1 - 1 - i1, size) != 1 and g:
+                        if read_block(x1, y1 - 1 - i1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -146,7 +154,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 - i1 - 1, y1 - i1 - 1, size) != 1 and g:
+                        if read_block(x1 - i1 - 1, y1 - i1 - 1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -156,7 +164,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 - i1 - 1, y1, size) != 1 and g:
+                        if read_block(x1 - i1 - 1, y1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -166,7 +174,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 - i1 - 1, y1 + i1 + 1, size) != 1 and g:
+                        if read_block(x1 - i1 - 1, y1 + i1 + 1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -176,7 +184,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1, y1 + 1 + i1, size) != 1 and g:
+                        if read_block(x1, y1 + 1 + i1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -186,7 +194,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 + i1 + 1, y1 + 1 + i1, size) != 1 and g:
+                        if read_block(x1 + i1 + 1, y1 + 1 + i1, size) != self.qi_p and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -209,7 +217,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 + i1 + 1, y1, size) != 2 and g:
+                        if read_block(x1 + i1 + 1, y1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -219,7 +227,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 + i1 + 1, y1 - 1 - i1, size) != 2 and g:
+                        if read_block(x1 + i1 + 1, y1 - 1 - i1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -229,7 +237,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1, y1 - 1 - i1, size) != 2 and g:
+                        if read_block(x1, y1 - 1 - i1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -239,7 +247,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 - i1 - 1, y1 - i1 - 1, size) != 2 and g:
+                        if read_block(x1 - i1 - 1, y1 - i1 - 1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -249,7 +257,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 - i1 - 1, y1, size) != 2 and g:
+                        if read_block(x1 - i1 - 1, y1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -259,7 +267,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 - i1 - 1, y1 + i1 + 1, size) != 2 and g:
+                        if read_block(x1 - i1 - 1, y1 + i1 + 1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -269,7 +277,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1, y1 + 1 + i1, size) != 2 and g:
+                        if read_block(x1, y1 + 1 + i1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -279,7 +287,7 @@ class ai:
                     g = True
                     p = 0
                     for i1 in range(5):
-                        if read_block(x1 + i1 + 1, y1 + 1 + i1, size) != 2 and g:
+                        if read_block(x1 + i1 + 1, y1 + 1 + i1, size) != self.qi and g:
                             if read_block(x1 + i1 + 1, y1 + 1 + i1, size) == 0 and i1 != 0:
                                 p = i1 + 1
                             else:
@@ -330,18 +338,26 @@ class ai:
             r = random.randint(0, len(max_point) - 1)
             a_max = max_pos[r]
             a_p = max_point[0]
-        if a_p > p_p:
-            block[a_max[1]][a_max[0]] = 2
+        if self.qi == 2:
+            if a_p > p_p:
+                block[a_max[1]][a_max[0]] = 2
+            else:
+                block[p_max[1]][p_max[0]] = 2
         else:
-            block[p_max[1]][p_max[0]] = 2
+            if a_p > p_p:
+                block[a_max[1]][a_max[0]] = 1
+            else:
+                block[p_max[1]][p_max[0]] = 1
+
 
 
 AI = ai()
+AI2 = ai()
 mouse = mouse_set()
 
 
 def write(massage, pos, color=(255, 255, 255)):
-    screen.blit(myfont.render(str(massage), True, color), pos)
+    screen.blit(myfont.render(str(massage), False, color), pos)
 
 
 def anniu(rect, zi='', rect_color=(120, 120, 120), text_color=(255, 255, 255)):  # 按钮
@@ -576,7 +592,7 @@ def play(size=10):
         write('Player 2 time:' + str(int(p2_t)) + 'sec', (0, 80), (0, 0, 0))
         if anniu((screen_size[0] - 100, 0, 100, 40), 'exit'):
             jm = 0
-        if anniu((screen_size[0] - 100, 40, 100, 40), 'start over') or key_up[K_r]:
+        if anniu((screen_size[0] - 100, 40, 100, 40), 'restart') or key_up[K_r]:
             p1_t = 0
             p2_t = 0
             p1_ts = time.time()
@@ -775,6 +791,7 @@ def one_play(size=10):
             AI.set(int(map_size * 5 + 5))
             p_t = time.time()
             pt = 0
+            times = 0
             perspective = [0, 0]
             player = first_player
             wins = False
@@ -787,10 +804,158 @@ def one_play(size=10):
     else:
         if anniu((screen_size[0] - 100, 0, 100, 40), 'exit'):
             jm = 0
-        if anniu((screen_size[0] - 100, 40, 100, 40), 'start over') or key_up[K_r]:
+        if anniu((screen_size[0] - 100, 40, 100, 40), 'restart') or key_up[K_r]:
             AI.set(int(map_size * 5 + 5))
             p_t = time.time()
             pt = 0
+            times = 0
+            perspective = [0, 0]
+            player = first_player
+            wins = False
+            s1 = []
+            for x in range(map_size * 10 + 10):
+                s1.append(0)
+            block = []
+            for y in range(map_size * 10 + 10):
+                block.append(s1.copy())
+
+
+def only_watch(size=10):
+    global perspective, player, AI, jm, wins, block, no_win, times, p_t, pt,plays
+    if looks == 1:
+        screen.fill((255, 255, 255))
+    else:
+        screen.fill((220, 140, 50))
+    for x1 in range(size * 2 + 1):
+        pygame.draw.line(screen, (0, 0, 0), (screen_size[0] / 2 - size * 32 + x1 * 32 + perspective[0], screen_size[1] / 2 - size * 32 + perspective[1]),
+                         (screen_size[0] / 2 - size * 32 + x1 * 32 + perspective[0], screen_size[1] / 2 + size * 32 + perspective[1]))
+    for y1 in range(size * 2 + 1):
+        pygame.draw.line(screen, (0, 0, 0), (screen_size[0] / 2 - size * 32 + perspective[0], screen_size[1] / 2 - size * 32 + y1 * 32 + perspective[1]),
+                         (screen_size[0] / 2 + size * 32 + perspective[0], screen_size[1] / 2 - size * 32 + y1 * 32 + perspective[1]))
+    pygame.draw.circle(screen, (0, 0, 0), (perspective[0] + screen_size[0] / 2, perspective[1] + screen_size[1] / 2), 3)
+    for iy in range(size * 2):
+        for ix in range(size * 2):
+            if max(AI.ai_point[iy][ix], AI.player_point[iy][ix]) != 0 and debug:
+                write(str(max(AI.ai_point[iy][ix], AI.player_point[iy][ix])),
+                      (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 16), (0, 0, 0))
+            if block[iy][ix] == 1:
+                if looks == 1:
+                    pygame.draw.circle(screen, (20, 20, 255), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 16), 15, 3)
+                else:
+                    if first_player == 1:
+                        pygame.draw.circle(screen, (0, 0, 0), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 16), 15)
+                    else:
+                        pygame.draw.circle(screen, (255, 255, 255), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 16),
+                                           15)
+            elif block[iy][ix] == 2:
+                if looks == 1:
+                    pygame.draw.line(screen, (255, 20, 20), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 4, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 4),
+                                     (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 28, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 28), 5)
+                    pygame.draw.line(screen, (255, 20, 20), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 28, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 4),
+                                     (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 4, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 28), 5)
+                else:
+                    if first_player == 2:
+                        pygame.draw.circle(screen, (0, 0, 0), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 16), 15)
+                    else:
+                        pygame.draw.circle(screen, (255, 255, 255), (screen_size[0] / 2 - size * 32 + ix * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + iy * 32 + perspective[1] + 16),
+                                           15)
+    point_to = (int((mouse.x - perspective[0] - screen_size[0] / 2) // 32 + size), int(-(mouse.y - perspective[1] - screen_size[1] / 2) // 32 + size))
+    if not wins and not no_win:
+        if not wins and not no_win:
+            if plays == 1:
+                AI.point_player()
+                AI.point_ai()
+                AI.decision()
+                AI.point_player()
+                AI.point_ai()
+                win(size)
+                times = times + 1
+                if times >= (size * 2) ** 2:
+                    no_win = True
+                plays = 2
+            elif plays == 2:
+                AI2.point_player()
+                AI2.point_ai()
+                AI2.decision()
+                AI2.point_player()
+                AI2.point_ai()
+                win(size)
+                times = times + 1
+                if times >= (size * 2) ** 2:
+                    no_win = True
+                plays = 1
+        if press[K_w]:
+            perspective[1] = perspective[1] + 2
+        if press[K_s]:
+            perspective[1] = perspective[1] - 2
+        if press[K_a]:
+            perspective[0] = perspective[0] + 2
+        if press[K_d]:
+            perspective[0] = perspective[0] - 2
+    else:
+        if wins:
+            perspective = [-(win_line[0][0] - size) * 32 + 16, -(win_line[0][1] - size) * 32 + 16]
+            pygame.draw.line(screen, (20, 255, 20),
+                             (screen_size[0] / 2 - size * 32 + win_line[0][0] * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + win_line[0][1] * 32 + perspective[1] + 16),
+                             (screen_size[0] / 2 - size * 32 + win_line[1][0] * 32 + perspective[0] + 16, screen_size[1] / 2 - size * 32 + win_line[1][1] * 32 + perspective[1] + 16), 10)
+            if winner == 1:
+                if language == 0:
+                    screen.blit(tittle.render('AI1赢了', True, (0, 0, 0)), (screen_size[0] / 2 - 100, screen_size[1] / 5 - 25))
+                else:
+                    screen.blit(tittle.render('AI1 won', True, (0, 0, 0)), (screen_size[0] / 2 - 100, screen_size[1] / 5 - 25))
+            else:
+                if language == 0:
+                    screen.blit(tittle.render('AI2赢了', True, (0, 0, 0)), (screen_size[0] / 2 - 100, screen_size[1] / 5 - 25))
+                else:
+                    screen.blit(tittle.render('AI2 won', True, (0, 0, 0)), (screen_size[0] / 2 - 100, screen_size[1] / 5 - 25))
+        else:
+            if language == 0:
+                screen.blit(tittle.render('平局', True, (0, 0, 0)), (screen_size[0] / 2 - 100, screen_size[1] / 5 - 25))
+            else:
+                screen.blit(tittle.render('Draw', True, (0, 0, 0)), (screen_size[0] / 2 - 100, screen_size[1] / 5 - 25))
+
+    write(point_to, (0, 20), (0, 0, 0))
+    if not wins and not no_win:
+        if language == 0:
+            write('用时：' + str(int(time.time() - p_t)) + '秒', (0, 40), (0, 0, 0))
+        else:
+            write('Elapsed time:' + str(int(time.time() - p_t)) + 'sec', (0, 40), (0, 0, 0))
+    else:
+        if pt == 0:
+            pt = time.time() - p_t
+        if language == 0:
+            write('用时：' + str(int(pt)) + '秒', (0, 40), (0, 0, 0))
+        else:
+            write('Elapsed time:' + str(int(pt)) + 'sec', (0, 40), (0, 0, 0))
+    if language == 0:
+        write('次数：' + str(int(times)), (0, 60), (0, 0, 0))
+    else:
+        write('times：' + str(int(times)), (0, 60), (0, 0, 0))
+    if language == 0:
+        if anniu((screen_size[0] - 100, 0, 100, 40), '退出'):
+            jm = 0
+        if anniu((screen_size[0] - 100, 40, 100, 40), '重来') or key_up[K_r]:
+            AI.set(int(map_size * 5 + 5))
+            p_t = time.time()
+            pt = 0
+            times = 0
+            perspective = [0, 0]
+            player = first_player
+            wins = False
+            s1 = []
+            for x in range(map_size * 10 + 10):
+                s1.append(0)
+            block = []
+            for y in range(map_size * 10 + 10):
+                block.append(s1.copy())
+    else:
+        if anniu((screen_size[0] - 100, 0, 100, 40), 'exit'):
+            jm = 0
+        if anniu((screen_size[0] - 100, 40, 100, 40), 'restart') or key_up[K_r]:
+            AI.set(int(map_size * 5 + 5))
+            p_t = time.time()
+            pt = 0
+            times = 0
             perspective = [0, 0]
             player = first_player
             wins = False
@@ -838,6 +1003,27 @@ while run:
                 jm = 4
             if anniu((screen_size[0] / 2 - 100, screen_size[1] / 2 + 160, 200, 40), '退出'):
                 run = False
+            if anniu((screen_size[0] / 2 - 100, screen_size[1] / 2 + 220, 200, 40), '观战'):
+                map_size = 1
+                AI.set(int(map_size * 5 + 5))
+                AI2.set(int(map_size * 5 + 5),2)
+                p_t = time.time()
+                pt = 0
+                perspective = [0, 0]
+                times = 0
+                no_win = False
+                player = first_player
+                wins = False
+                s1 = []
+                for x in range(map_size * 10 + 10):
+                    s1.append(0)
+                block = []
+                for y in range(map_size * 10 + 10):
+                    block.append(s1.copy())
+                if first_player == 2:
+                    block[map_size * 5 + 5][map_size * 5 + 5] = 2
+                plays = 1
+                jm = 8
 
         else:
             screen.blit(tittle.render('Gomoku', True, (255, 255, 255)), (screen_size[0] / 2 - 75, screen_size[1] / 4 - 25))
@@ -849,6 +1035,27 @@ while run:
                 jm = 4
             if anniu((screen_size[0] / 2 - 100, screen_size[1] / 2 + 160, 200, 40), 'Exit'):
                 run = False
+            if anniu((screen_size[0] / 2 - 100, screen_size[1] / 2 + 220, 200, 40), 'watching'):
+                map_size = 1
+                AI.set(int(map_size * 5 + 5))
+                AI2.set(int(map_size * 5 + 5),2)
+                p_t = time.time()
+                pt = 0
+                perspective = [0, 0]
+                times = 0
+                no_win = False
+                player = first_player
+                wins = False
+                s1 = []
+                for x in range(map_size * 10 + 10):
+                    s1.append(0)
+                block = []
+                for y in range(map_size * 10 + 10):
+                    block.append(s1.copy())
+                if first_player == 2:
+                    block[map_size * 5 + 5][map_size * 5 + 5] = 2
+                plays = 1
+                jm = 8
         if anniu((screen_size[0] / 2 - 100, screen_size[1] / 2 + 100, 200, 40), '设置 settings'):
             jm = 7
     if jm == 1:
@@ -1028,6 +1235,8 @@ while run:
             language = 0
         if anniu((screen_size[0] / 2 + 100, screen_size[1] / 2 + 40, 200, 40), 'English'):
             language = 1
+    if jm == 8:
+        only_watch(int(map_size * 5 + 5))
     write('fps:' + str(int(clock.get_fps())), (0, 0), (0, 0, 0))
     pygame.display.update()
     clock.tick(60)
