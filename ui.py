@@ -217,6 +217,8 @@ class Basic:
         self.win_line = []
         self.game_over = False
         self.exit = False
+        self.NB1.init()
+        self.NB2.init()
         if difficulty == 0:
             self.AI1 = nb_AI_1()
             self.AI2 = nb_AI_1()
@@ -262,11 +264,11 @@ class Basic:
     def draw_nb(self):
         """绘制牛犇"""
         if self.winner == 2:
-            self.screen.blit(self.images.nb2, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.happy, (0, self.screen.get_height() - 128))
         elif self.winner == 1 or time.time() - self.NB2.angry_time < 0:
-            self.screen.blit(self.images.nb3, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.angry, (0, self.screen.get_height() - 128))
         else:
-            self.screen.blit(self.images.nb1, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.normal, (0, self.screen.get_height() - 128))
 
     def draw_totem(self):
         """绘制图腾"""
@@ -314,6 +316,8 @@ class Basic:
     def restart_button(self):
         if self.button((0, 0, 140, 38), self.text('restart')) or pygame.key.get_pressed()[K_r]:
             self.init()
+            self.NB1.init()
+            self.NB2.init()
 
     def draw(self, mouse_up, sounds: Sound, language: int):
         self.lan = language
@@ -513,11 +517,11 @@ class Tortoise_play(Basic):
 
     def draw_nb(self):
         if self.winner == 2:
-            self.screen.blit(self.images.nb2, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.happy, (0, self.screen.get_height() - 128))
         elif self.winner == 1 or time.time() - self.NB2.angry_time < 0:
-            self.screen.blit(self.images.nb3, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.angry, (0, self.screen.get_height() - 128))
         else:
-            self.screen.blit(self.images.nb1, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.normal, (0, self.screen.get_height() - 128))
         self.screen.blit(self.images.undying_totem_, (128, self.screen.get_height() - 32))
         self.write('×' + str(self.NB2.undying_totem), (160, self.screen.get_height() - 32), size=32)
         self.screen.blit(self.images.restart_totem_, (128, self.screen.get_height() - 64))
@@ -559,9 +563,11 @@ class Tortoise_play(Basic):
             if self.particles[i - ds].y > self.screen.get_height() // 2:
                 self.particles.pop(i - ds)
                 ds = ds + 1
+
         if self.totem_time > 0:
             for p in self.particles:
-                p.update()
+                p: Particle
+                p.update(1)
             if self.totem_types == 0:
                 if len(self.images.totems_undying) == 180:
                     t = self.images.totems_undying[self.totem_time - 1]
@@ -598,6 +604,7 @@ class Tortoise_watch(Basic):
     totem_types = 0
     particles = []
     totem_time = 0
+    ts = 0
 
     def __init__(self, settings: setting, languages, images, difficulty=0):
         super().__init__(settings, languages, images, difficulty)
@@ -643,6 +650,7 @@ class Tortoise_watch(Basic):
             self.write(self.text('ai2_won'), (self.screen.get_width() / 2, 64), size=64, center=True)
 
     def init(self, step1=0, step2=0, difficulty=0) -> None:
+        self.ts = time.time()
         self.board = []
         for i in range(16):
             self.board.append([0] * 16)
@@ -665,7 +673,7 @@ class Tortoise_watch(Basic):
         else:
             self.AI1 = nb_AI_2()
             self.AI2 = nb_AI_2()
-            self.board[random.randint(0,15)][random.randint(0,15)] = 2
+            self.board[random.randint(0, 15)][random.randint(0, 15)] = 2
 
     def do(self, sounds: Sound):
         if not self.game_over:
@@ -681,21 +689,21 @@ class Tortoise_watch(Basic):
 
     def draw_nb(self):
         if self.winner == 2:
-            self.screen.blit(self.images.nb2, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.happy, (0, self.screen.get_height() - 128))
         elif self.winner == 1 or time.time() - self.NB2.angry_time < 0:
-            self.screen.blit(self.images.nb3, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.angry, (0, self.screen.get_height() - 128))
         else:
-            self.screen.blit(self.images.nb1, (0, self.screen.get_height() - 128))
+            self.screen.blit(self.images.normal, (0, self.screen.get_height() - 128))
         self.screen.blit(self.images.undying_totem_, (128, self.screen.get_height() - 32))
         self.write('×' + str(self.NB2.undying_totem), (160, self.screen.get_height() - 32), size=32)
         self.screen.blit(self.images.restart_totem_, (128, self.screen.get_height() - 64))
         self.write('×' + str(self.NB2.restart_totem), (160, self.screen.get_height() - 64), size=32)
         if self.winner == 1:
-            self.screen.blit(self.images.nb2, (self.screen.get_width() - 128, self.screen.get_height() - 128))
+            self.screen.blit(self.images.happy, (self.screen.get_width() - 128, self.screen.get_height() - 128))
         elif self.winner == 2 or time.time() - self.NB1.angry_time < 0:
-            self.screen.blit(self.images.nb3, (self.screen.get_width() - 128, self.screen.get_height() - 128))
+            self.screen.blit(self.images.angry, (self.screen.get_width() - 128, self.screen.get_height() - 128))
         else:
-            self.screen.blit(self.images.nb1, (self.screen.get_width() - 128, self.screen.get_height() - 128))
+            self.screen.blit(self.images.normal, (self.screen.get_width() - 128, self.screen.get_height() - 128))
         self.screen.blit(self.images.undying_totem_, (self.screen.get_width() - 128 - 64, self.screen.get_height() - 32))
         self.write('×' + str(self.NB1.undying_totem), (self.screen.get_width() - 128 - 32, self.screen.get_height() - 32), size=32)
         self.screen.blit(self.images.restart_totem_, (self.screen.get_width() - 128 - 64, self.screen.get_height() - 64))
@@ -720,7 +728,7 @@ class Tortoise_watch(Basic):
                 u = random.randint(1, 2)
             if u == 1:
                 self.NB2.restart_totem = self.NB2.restart_totem - 1
-                self.init(self.player1_steps, self.player2_steps,difficulty=self.difficulty)
+                self.init(self.player1_steps, self.player2_steps, difficulty=self.difficulty)
                 self.totem_types = 1
             else:
                 self.NB2.undying_totem = self.NB2.undying_totem - 1
@@ -745,7 +753,7 @@ class Tortoise_watch(Basic):
                 u = random.randint(1, 2)
             if u == 1:
                 self.NB1.restart_totem = self.NB1.restart_totem - 1
-                self.init(self.player1_steps, self.player2_steps,difficulty=self.difficulty)
+                self.init(self.player1_steps, self.player2_steps, difficulty=self.difficulty)
                 self.totem_types = 1
             else:
                 self.NB1.undying_totem = self.NB1.undying_totem - 1
@@ -760,6 +768,12 @@ class Tortoise_watch(Basic):
             for i in range(random.randint(15, 45)):
                 self.particles.append(Particle(random.randint(-10, 10), random.randint(-5, 5), (random.randint(0, 255), 255, 0)))
 
+    def restart_button(self):
+        if self.button((0, 0, 140, 38), self.text('restart')) or pygame.key.get_pressed()[K_r]:
+            self.init(difficulty=self.difficulty)
+            self.NB1.init()
+            self.NB2.init()
+
     def draw_totem(self):
         for p in self.particles:
             pygame.draw.circle(self.screen, p.color, (self.screen.get_width() // 2 + p.x, self.screen.get_height() // 2 + p.y), 8)
@@ -768,9 +782,13 @@ class Tortoise_watch(Basic):
             if self.particles[i - ds].y > self.screen.get_height() // 2:
                 self.particles.pop(i - ds)
                 ds = ds + 1
+        dt = int((time.time() - self.ts) * 30)
+        if dt <= 0:
+            dt = 1
         if self.totem_time > 0:
             for p in self.particles:
-                p.update()
+                p: Particle
+                p.update(dt)
             if self.totem_types == 0:
                 if len(self.images.totems_undying) == 180:
                     t = self.images.totems_undying[self.totem_time - 1]
@@ -792,12 +810,13 @@ class Tortoise_watch(Basic):
         else:
             self.particles = []
         if self.totem_time > 0:
-            self.totem_time = self.totem_time - 1
+            self.totem_time = self.totem_time - dt
         elif self.totem_time < 0:
             self.totem_time = 0
+        self.ts = time.time()
 
     def none_won(self, sounds: Sound):
-        self.init(self.player1_steps, self.player2_steps,difficulty=self.difficulty)
+        self.init(self.player1_steps, self.player2_steps, difficulty=self.difficulty)
         self.totem_types = 1
         self.totem_time = 180
         self.game_over = False

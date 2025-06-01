@@ -7,8 +7,9 @@ class setting:
     nb = True
     name = ''
     style = 0
+    resource = ''
 
-    def reset(self, language='简体中文', play_music=False, play_sound=True, music_volume=0.1, sound_volume=0.4, nb=True, name='', style=0):
+    def reset(self, language='简体中文', play_music=False, play_sound=True, music_volume=0.1, sound_volume=0.4, nb=True, name='', style=0,resource=''):
         self.language = language
         self.play_music = play_music
         self.play_sound = play_sound
@@ -17,3 +18,4 @@ class setting:
         self.nb = nb
         self.name = name
         self.style = style
+        self.resource = resource

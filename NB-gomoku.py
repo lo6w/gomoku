@@ -1,10 +1,16 @@
-﻿import math
+﻿import io
+import json
+import math
 import os
 import pickle
 import socket
 import threading
+import tkinter.messagebox
 import webbrowser
+import zipfile
 
+from PIL import Image as Img
+import numpy
 import pygame.display
 from server import server
 from niuben import sounds, musics, Image
@@ -26,7 +32,6 @@ class Game:
         pygame.display.init()
         self.screen = pygame.display.set_mode((1280, 720), RESIZABLE | HWACCEL | DOUBLEBUF)
         loads = threading.Thread(target=self.loading, daemon=True)
-        loads.start()
         pygame.font.init()
         self.run = True
         self.clock = pygame.time.Clock()
@@ -53,10 +58,13 @@ class Game:
         self.totems_undying = []
         self.totems_restart = []
         self.languages = {}
+        self.resource_names = []
+        self.resources = {}
+        self.resource_choice = ''
         self.choice = 0
-        self.difficulty=False
+        self.difficulty = False
         self.error_text = ''
-        tittles = ['NB-gomoku 2.0 特供版!', '牛犇AI 1.0!', '&&&&&&&&', '牛犇AI2.0是个谎言!', '你被骗了', '牛犇就是NB', '&点我没有惊喜&']
+        tittles = ['NB-五子棋 2.0 特供版!', '牛犇AI 2.0!', '&&&&&&&&', '牛犇AI2.0是真的!', '你被骗了', '牛犇就是NB', '&点我没有惊喜&']
         self.line = 0
         try:
             settings = open('setting.ini', 'rb+')
@@ -77,6 +85,8 @@ class Game:
         self.settings: setting
         self.servers_list: list
         settings.close()
+        self.resource_choice = self.settings.resource
+        loads.start()
         self.language_names = []
         for lt in os.listdir(r'languages/'):
             if os.path.isfile(r'languages/' + str(lt)):
@@ -121,6 +131,8 @@ class Game:
                     self.input_text.append(event.text)
             self.key_press = pygame.key.get_pressed()
             self.screen.fill((255, 255, 255))
+            if self.interface == -1:
+                self.run = False
             if self.interface == 0:
                 self.write('loading...', (self.screen.get_width() // 2, self.screen.get_height() // 2), center=True)
                 j = (len(images.totems_undying) + len(images.totems_restart)) / 360
@@ -232,6 +244,8 @@ class Game:
                     self.multi_play.first = self.servers.first
                     self.multi_play.board = self.servers.board
                     self.multi_play.go = self.servers.go
+            elif self.interface == 16:
+                self.chose_resource()
             if musics.play and self.interface in (1, 2, 8):
                 self.write(musics.get_name(), (0, self.screen.get_height() - 32), size=32)
             pygame.display.flip()
@@ -248,7 +262,7 @@ class Game:
         pygame.quit()
         self.settings.reset(language=self.lan, play_music=musics.play, play_sound=sounds.playing,
                             music_volume=musics.volume,
-                            sound_volume=sounds.volume, nb=self.settings.nb, name=self.name,style=self.settings.style)
+                            sound_volume=sounds.volume, nb=self.settings.nb, name=self.name, style=self.settings.style, resource=self.settings.resource)
         settings = open("setting.ini", "wb")
         # noinspection PyTypeChecker
         pickle.dump(self.settings, settings)
@@ -261,7 +275,7 @@ class Game:
     def menu(self):
         """主菜单"""
         self.screen.fill((0, 127, 255))
-        self.write('GOMOKU', (self.screen.get_width() / 2 - 96, self.screen.get_height() / 8), size=64)
+        self.write('五子棋', (self.screen.get_width() / 2 - 96, self.screen.get_height() / 8), size=64)
         if not (32 in self.fonts):
             self.fonts[32] = pygame.font.Font('unifont-15.0.01.ttf', 32)
         m = self.tittle
@@ -312,8 +326,8 @@ class Game:
         else:
             t = self.text('watch_tortoise_d')
         self.write(t, (self.screen.get_width() / 2 + 200, self.screen.get_height() / 2 - 100), size=32, center=True)
-        self.write(self.text('difficulty'),(self.screen.get_width() // 2-50, self.screen.get_height() // 2),size=32)
-        self.difficulty =self.switch(self.text('hard'), 32, (self.screen.get_width() // 2 + 30, self.screen.get_height() // 2), self.difficulty)
+        self.write(self.text('difficulty'), (self.screen.get_width() // 2 - 50, self.screen.get_height() // 2), size=32)
+        self.difficulty = self.switch(self.text('hard'), 32, (self.screen.get_width() // 2 + 30, self.screen.get_height() // 2), self.difficulty)
         self.difficulty = not self.switch(self.text('easy'), 32, (self.screen.get_width() // 2 + 150, self.screen.get_height() // 2), not self.difficulty)
         if self.button((self.screen.get_width() / 2 - 200, self.screen.get_height() - 38, 400, 38),
                        self.text('exit')):
@@ -381,9 +395,12 @@ class Game:
         sounds.volume = self.slider(self.text('sounds_volume'), 32,
                                     (self.screen.get_width() // 2 + 100, self.screen.get_height() // 2 - 150, 400, 40),
                                     sounds.volume)
-        self.settings.nb = self.switch(self.text('nb'), 32,
-                                       (self.screen.get_width() // 2 - 100, self.screen.get_height() // 2 + 100),
-                                       self.settings.nb)
+        # self.settings.nb = self.switch(self.text('nb'), 32,
+        #                               (self.screen.get_width() // 2 - 100, self.screen.get_height() // 2 + 100),
+        #                               self.settings.nb)
+        if self.button((self.screen.get_width() // 2 - 200, self.screen.get_height() // 2 + 100, 400, 40), self.text('res')):
+            self.interface = 16
+            self.get_resources()
 
     def set_language(self):
         """语言页面"""
@@ -419,7 +436,7 @@ class Game:
             r = (self.screen.get_height() - 150) // 40 * 45 * ((self.screen.get_height() - 150) // 40 / len(self.language_names))
             pygame.draw.rect(self.screen, (200, 200, 200), (
                 self.screen.get_width() // 2 + 300, 20 + self.line / (len(self.language_names) - (self.screen.get_height() - 150) // 40) * (
-                        (self.screen.get_height() - 150) // 40 * 45 - r), 10, r))
+                    (self.screen.get_height() - 150) // 40 * 45 - r), 10, r))
             if self.button((self.screen.get_width() // 2 + 300, self.screen.get_height() // 2 - 50, 40, 40), '↑'):
                 if self.line - 1 >= 0:
                     self.line = self.line - 1
@@ -447,6 +464,136 @@ class Game:
                     else:
                         self.line = 0
         self.write(self.text('translate'), (self.screen.get_width() // 2, self.screen.get_height() - 56), size=32, center=True)
+
+    def get_resources(self):
+        self.resource_choice = ''
+        self.resources = {}
+        self.resource_names = []
+        for lt in os.listdir(r'resourcepacks/'):
+            if os.path.isfile(r'resourcepacks/' + str(lt)):
+                if os.path.splitext(lt)[1] == '.zip':
+                    name = os.path.splitext(lt)[0]
+                    try:
+                        with zipfile.ZipFile(r'resourcepacks/' + str(lt), 'r') as z:
+                            l = z.filelist
+                            ls = []
+                            for f in l:
+                                ls.append(f.filename)
+                            if 'info.json' in ls:
+                                try:
+                                    info = json.loads(z.read('info.json'))
+                                    self.resources[name] = info
+                                    self.resource_names.append(name)
+                                except KeyError as e:
+                                    print('不存在描述文件\n' + str(e))
+                                except json.decoder.JSONDecodeError as e:
+                                    print('读取失败1\n' + str(e))
+                                except AttributeError as e:
+                                    print('读取失败2\n' + str(e))
+                                except FileNotFoundError as e:
+                                    print('找不到文件\n' + str(e))
+                        z.close()
+                    except FileNotFoundError:
+                        print(str(lt) + '不是有效文件')
+
+    def set_resources(self):
+        """立即设置资源包"""
+        global images
+        if self.settings.resource != '' and os.path.isfile(r'resourcepacks/' + str(self.settings.resource) + '.zip'):
+            with zipfile.ZipFile(r'resourcepacks/' + str(self.settings.resource) + '.zip', 'r') as z:
+                n1 = pygame.surfarray.make_surface(numpy.array(Img.open(io.BytesIO(z.read('image/normal.png'))).convert('RGB')))
+                n2 = pygame.surfarray.make_surface(numpy.array(Img.open(io.BytesIO(z.read('image/happy.png'))).convert('RGB')))
+                n3 = pygame.surfarray.make_surface(numpy.array(Img.open(io.BytesIO(z.read('image/angry.png'))).convert('RGB')))
+                n1.set_colorkey((0, 0, 0))
+                n2.set_colorkey((0, 0, 0))
+                n3.set_colorkey((0, 0, 0))
+                n4 = pygame.Surface(n1.get_size()).convert_alpha()
+                n5 = pygame.Surface(n1.get_size()).convert_alpha()
+                n6 = pygame.Surface(n1.get_size()).convert_alpha()
+                n4.fill((0, 0, 0, 0))
+                n5.fill((0, 0, 0, 0))
+                n6.fill((0, 0, 0, 0))
+                n4.blit(n1, (0, 0))
+                n5.blit(n2, (0, 0))
+                n6.blit(n3, (0, 0))
+                n4 = pygame.transform.scale(pygame.transform.rotate(pygame.transform.flip(n1, False, True), -90), (128, 128))
+                n5 = pygame.transform.scale(pygame.transform.rotate(pygame.transform.flip(n2, False, True), -90), (128, 128))
+                n6 = pygame.transform.scale(pygame.transform.rotate(pygame.transform.flip(n3, False, True), -90), (128, 128))
+                images.normal = n4.copy()
+                images.happy = n5.copy()
+                images.angry = n6.copy()
+            z.close()
+        else:
+            if self.settings.resource != '':
+                print(self.text('uk_r') + r'：resourcepacks/' + str(self.settings.resource) + '.zip')
+            else:
+                images.reset()
+
+    def chose_resource(self):
+        """资源包页面"""
+        self.screen.fill((0, 127, 255))
+        if self.button((self.screen.get_width() // 2 - 160, self.screen.get_height() - 40, 150, 38), self.text('exit')):
+            self.interface = 1
+        if self.button((self.screen.get_width() // 2 + 10, self.screen.get_height() - 40, 150, 38), self.text('rf')):
+            self.get_resources()
+        if self.resource_choice != '':
+
+            if 'description' in self.resources[self.resource_choice]:
+                self.write(self.resources[self.resource_choice]['description'], (self.screen.get_width() // 2 - 400, self.screen.get_height() // 2 - 150), size=32, center=True)
+            self.write(self.resources[self.resource_choice]['name'], (self.screen.get_width() // 2 - 400, self.screen.get_height() // 2 - 260), size=32, center=True)
+            self.write(self.text('version_r') +':'+ str(self.resources[self.resource_choice]['version']), (self.screen.get_width() // 2 - 400, self.screen.get_height() // 2), size=32,
+                       center=True)
+            self.write(self.text('description') + ':', (self.screen.get_width() // 2 - 400, self.screen.get_height() // 2 - 200), size=32, center=True)
+            if self.resource_choice != self.settings.resource:
+                if self.button((self.screen.get_width() // 2 - 450, self.screen.get_height() // 2 + 100, 100, 40), self.text('use_r')):
+                    self.settings.resource = self.resource_choice
+                    self.set_resources()
+        if self.settings.resource != '':
+            self.write(self.text('used_r') + ':' + str(self.settings.resource), (self.screen.get_width() // 2 - 450, self.screen.get_height() // 2 - 300), size=32, center=True)
+        if self.button((self.screen.get_width() // 2 - 500, self.screen.get_height() // 2 + 150, 200, 40), self.text('cancel_r')):
+            self.settings.resource = ''
+            self.set_resources()
+
+        for i in range((self.screen.get_height() - 150) // 40):
+            ls = i + self.line
+            if ls <= len(self.resource_names) - 1:
+                if self.button((self.screen.get_width() // 2 - 250, 20 + i * 45, 500, 40), self.resource_names[ls]):
+                    self.resource_choice = str(self.resource_names[ls])
+        if (self.screen.get_height() - 150) // 40 + self.line > len(self.resource_names):
+            self.line = len(self.resource_names) - (self.screen.get_height() - 150) // 40
+        if (self.screen.get_height() - 150) // 40 < len(self.resource_names):
+            pygame.draw.rect(self.screen, (0, 0, 0),
+                             (self.screen.get_width() // 2 + 300, 20, 10, (self.screen.get_height() - 150) // 40 * 45))
+            r = (self.screen.get_height() - 150) // 40 * 45 * ((self.screen.get_height() - 150) // 40 / len(self.resource_names))
+            pygame.draw.rect(self.screen, (200, 200, 200), (
+                self.screen.get_width() // 2 + 300, 20 + self.line / (len(self.resource_names) - (self.screen.get_height() - 150) // 40) * (
+                    (self.screen.get_height() - 150) // 40 * 45 - r), 10, r))
+            if self.button((self.screen.get_width() // 2 + 300, self.screen.get_height() // 2 - 50, 40, 40), '↑'):
+                if self.line - 1 >= 0:
+                    self.line = self.line - 1
+                else:
+                    self.line = 0
+            if self.button((self.screen.get_width() // 2 + 300, self.screen.get_height() // 2 + 10, 40, 40), '↓'):
+                if (self.screen.get_height() - 150) // 40 + self.line - 1 <= len(self.resource_names):
+                    self.line = self.line + 1
+                else:
+                    if (self.screen.get_height() - 150) // 40 < len(self.resource_names):
+                        self.line = len(self.resource_names) - (self.screen.get_height() - 150) // 40
+        else:
+            self.line = 0
+        for e in self.event:
+            if e.type == MOUSEWHEEL:
+                if e.y < 0:
+                    if (self.screen.get_height() - 150) // 40 + self.line - e.y <= len(self.resource_names):
+                        self.line = self.line - e.y
+                    else:
+                        if (self.screen.get_height() - 150) // 40 < len(self.resource_names):
+                            self.line = len(self.resource_names) - (self.screen.get_height() - 150) // 40
+                elif e.y > 0:
+                    if self.line - e.y >= 0:
+                        self.line = self.line - e.y
+                    else:
+                        self.line = 0
 
     def text(self, name: str) -> str:
         if self.lan in self.languages:
@@ -513,12 +660,29 @@ class Game:
     def loading(self) -> None:
         global images
         images = Image()
-        self.i = 0
-        for i in range(180):
-            images.totems_undying.append(pygame.image.load(r'image/totem/undying' + str(i) + '.png').convert_alpha())
 
-        for i in range(180):
-            images.totems_restart.append(pygame.image.load(r'image/totem/restart' + str(i) + '.png').convert_alpha())
+        try:
+            with zipfile.ZipFile(r'image/totem.zip', 'r') as t:
+                for i in range(180):
+                    p1 = pygame.surfarray.make_surface(numpy.array(Img.open(io.BytesIO(t.read('undying' + str(i) + '.png'))).convert('RGB'))).convert_alpha()
+                    p2 = pygame.surfarray.make_surface(numpy.array(Img.open(io.BytesIO(t.read('restart' + str(i) + '.png'))).convert('RGB'))).convert_alpha()
+                    p1.set_colorkey((0, 0, 0, 0))
+                    p2.set_colorkey((0, 0, 0, 0))
+                    p3 = pygame.Surface(p1.get_size()).convert_alpha()
+                    p4 = pygame.Surface(p2.get_size()).convert_alpha()
+                    p4.fill((0, 0, 0, 0))
+                    p3.fill((0, 0, 0, 0))
+                    p3.blit(p1, (0, 0))
+                    p4.blit(p2, (0, 0))
+                    images.totems_undying.append(pygame.transform.rotate(p3, -90))
+                    images.totems_restart.append(pygame.transform.rotate(p4, -90))
+            t.close()
+            self.set_resources()
+            exit()
+        except FileNotFoundError as e:
+            tkinter.messagebox.showerror('错误', '缺失文件：\n' + str(e))
+            self.interface = -1
+            exit()
 
     def totem(self, times: int, types: Literal[0, 1]) -> pygame.Surface:
         """图腾特效"""
@@ -541,7 +705,7 @@ class Game:
         b = pygame.transform.scale(pygame.transform.rotate(b, 5), (size, size))
         return b
 
-    def switch(self, text, size:int, pos:tuple, opening:bool) -> bool:
+    def switch(self, text, size: int, pos: tuple, opening: bool) -> bool:
         """开关"""
         if not (size in self.fonts):
             self.fonts[size] = pygame.font.Font('unifont-15.0.01.ttf', size)
