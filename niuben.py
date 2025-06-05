@@ -10,9 +10,9 @@ class Image:
         if pygame.display.get_active():
             self.totems_undying = []
             self.totems_restart = []
-            self.normal = pygame.transform.scale(pygame.image.load(r'image/nb1.png'), (128, 128)).convert_alpha()
-            self.happy = pygame.transform.scale(pygame.image.load(r'image/nb2.png'), (128, 128)).convert_alpha()
-            self.angry = pygame.transform.scale(pygame.image.load(r'image/nb3.png'), (128, 128)).convert_alpha()
+            self.normal = pygame.transform.scale(pygame.image.load(r'image/normal.png'), (128, 128)).convert_alpha()
+            self.happy = pygame.transform.scale(pygame.image.load(r'image/happy.png'), (128, 128)).convert_alpha()
+            self.angry = pygame.transform.scale(pygame.image.load(r'image/angry.png'), (128, 128)).convert_alpha()
             self.undying_totem = pygame.image.load(r'image/totem of undying.png').convert_alpha()
             self.undying_totem_ = pygame.image.load(r'image/totem_of_undying.png').convert_alpha()
             self.restart_totem = pygame.image.load(r'image/totem of restart.png').convert_alpha()
@@ -24,9 +24,9 @@ class Image:
         else:
             self.totems_undying = []
             self.totems_restart = []
-            self.normal = pygame.transform.scale(pygame.image.load(r'image/nb1.png'), (128, 128))
-            self.happy = pygame.transform.scale(pygame.image.load(r'image/nb2.png'), (128, 128))
-            self.angry = pygame.transform.scale(pygame.image.load(r'image/nb3.png'), (128, 128))
+            self.normal = pygame.transform.scale(pygame.image.load(r'image/normal.png'), (128, 128))
+            self.happy = pygame.transform.scale(pygame.image.load(r'image/happy.png'), (128, 128))
+            self.angry = pygame.transform.scale(pygame.image.load(r'image/angry.png'), (128, 128))
             self.undying_totem = pygame.image.load(r'image/totem of undying.png')
             self.undying_totem_ = pygame.image.load(r'image/totem_of_undying.png')
             self.restart_totem = pygame.image.load(r'image/totem of restart.png')
@@ -37,9 +37,9 @@ class Image:
             self.button4 = pygame.image.load(r'image/button4.png')
 
     def reset(self) -> None:
-        self.normal = pygame.transform.scale(pygame.image.load(r'image/nb1.png'), (128, 128)).convert_alpha()
-        self.happy = pygame.transform.scale(pygame.image.load(r'image/nb2.png'), (128, 128)).convert_alpha()
-        self.angry = pygame.transform.scale(pygame.image.load(r'image/nb3.png'), (128, 128)).convert_alpha()
+        self.normal = pygame.transform.scale(pygame.image.load(r'image/normal.png'), (128, 128)).convert_alpha()
+        self.happy = pygame.transform.scale(pygame.image.load(r'image/happy.png'), (128, 128)).convert_alpha()
+        self.angry = pygame.transform.scale(pygame.image.load(r'image/angry.png'), (128, 128)).convert_alpha()
         self.undying_totem = pygame.image.load(r'image/totem of undying.png').convert_alpha()
         self.undying_totem_ = pygame.image.load(r'image/totem_of_undying.png').convert_alpha()
         self.restart_totem = pygame.image.load(r'image/totem of restart.png').convert_alpha()
